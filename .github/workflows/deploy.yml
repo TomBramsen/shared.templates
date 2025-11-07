@@ -47,6 +47,12 @@ on:
         required: false
         default: true
         type: boolean
+        
+      runDeploy:
+        description: "Set to true to run deployment after validation. Default: true"
+        required: false
+        default: true
+        type: boolean
     
 jobs:
   deploy:
@@ -91,6 +97,19 @@ jobs:
       with:
         type: deployment
         operation: whatIf
+        name:  ${{ inputs.deploymentName != '' && inputs.deploymentName || format('gh-{0}-{1}', github.event.repository.name, github.run_number) }} # should be max 64 charseploy && github.event.repository.name, github.run_number) }} 
+        scope: ${{ inputs.scope }}
+        subscription-id: ${{ inputs.subscriptionId }}
+        resource-group-name: ${{ inputs.resourceGroupName }}
+        template-file: ${{ inputs.templatePath }}
+        parameters-file: ${{ inputs.templateParameterPath}}
+
+    - name: deploy bicep template
+      uses: azure/bicep-deploy@v2
+      if: ${{ inputs.runDeploy == 'true' }}
+      with:
+        type: deployment
+        operation: create
         name:  ${{ inputs.deploymentName != '' && inputs.deploymentName || format('gh-{0}-{1}', github.event.repository.name, github.run_number) }} # should be max 64 charseploy && github.event.repository.name, github.run_number) }} 
         scope: ${{ inputs.scope }}
         subscription-id: ${{ inputs.subscriptionId }}
