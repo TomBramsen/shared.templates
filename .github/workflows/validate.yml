@@ -1,0 +1,94 @@
+name: "resuable deploy"
+description: "create Bicep Template deployment"
+
+on:
+  workflow_call:
+    inputs:
+      templateFile:
+        description: "templatePath"
+        required: true
+        type: string
+      templateParameterFile:
+        description: "templateParameterPath"
+        required: false
+        type: string
+      resourceGroupName:
+        description: "resourceGroupName"
+        required: false
+        type: string
+      scope:
+        description: "The scope of the deployment: subscription, resourceGroup. Default: resourceGroup"
+        default: "resourceGroup"
+        required: false
+        type: string
+      parameters:
+        description: "Inline parameters for the deployment."
+        required: false
+        type: string
+      subscription:
+        default : "0e001777-3a95-4bc2-a44e-5d1560e0d56b"
+        type: string
+        required: false
+      environment:
+        required: false
+        type: string
+        default: "tst"
+      deploymentName:
+        required: false
+        type: string
+        default: "tst"
+      runWhatIf:
+        description: "Set to true to run WhatIf after validation"
+        required: false
+        default: "true"
+    
+jobs:
+  deploy:
+    runs-on: windows-latest
+    environment: 'tst' # ${{ inputs.environment }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Debug inputs
+      shell: pwsh
+      run: |
+        Write-Host "environment: ${{ inputs.environment }}"
+        Write-Host "subscription: ${{ inputs.subscription }}"
+        Write-Host "scope: ${{ inputs.scope }}"
+        Write-Host "resourceGroupName: ${{ inputs.resourceGroupName }}"
+        Write-Host "templateFile: ${{ inputs.templateFile }}"
+     
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+       creds: ${{ secrets.CREDENTIALS }}
+       enable-AzPSSession: true
+
+
+    - name: Validate bicep template
+      uses: azure/bicep-deploy@v2
+      with:
+        type: deployment
+        operation: validate
+        name:  ${{ inputs.deploymentName != '' && inputs.deploymentName || format('gh-{0}-{1}', github.event.repository.name, github.run_number) }} # should be max 64 charseploy && github.event.repository.name, github.run_number) }} 
+        scope: ${{ inputs.scope }}
+        subscription-id: ${{ inputs.subscription }}
+        resource-group-name: ${{ inputs.resourceGroupName }}
+        location: ${{ inputs.location }}
+        template-file: ${{ inputs.templateFile }}
+        parameters-file: ${{ inputs.templateParameterFile }}
+
+    - name: whatif bicep template
+      uses: azure/bicep-deploy@v2
+      if: ${{ inputs.runWhatIf == 'true' }}
+      with:
+        type: deployment
+        operation: whatIf
+        name:  ${{ inputs.deploymentName != '' && inputs.deploymentName || format('gh-{0}-{1}', github.event.repository.name, github.run_number) }} # should be max 64 charseploy && github.event.repository.name, github.run_number) }} 
+        scope: ${{ inputs.scope }}
+        subscription-id: ${{ inputs.subscription }}
+        resource-group-name: ${{ inputs.resourceGroupName }}
+        location: ${{ inputs.location }}
+        template-file: ${{ inputs.templateFile }}
+        parameters-file: ${{ inputs.templateParameterFile }}
