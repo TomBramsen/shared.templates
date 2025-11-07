@@ -82,7 +82,6 @@ jobs:
         scope: ${{ inputs.scope }}
         subscription-id: ${{ inputs.subscriptionId }}
         resource-group-name: ${{ inputs.resourceGroupName }}
-        #location: ${{ inputs.location }}
         template-file: ${{ inputs.templatePath }}
         parameters-file: ${{ inputs.templateParameterPath }}
 
@@ -96,6 +95,5 @@ jobs:
         scope: ${{ inputs.scope }}
         subscription-id: ${{ inputs.subscriptionId }}
         resource-group-name: ${{ inputs.resourceGroupName }}
-        #location: ${{ inputs.location }}
         template-file: ${{ inputs.templatePath }}
-        parameters-file: ${{ inputs.templateParameterPath}
+        parameters-file: ${{ inputs.templateParameterPath}}
