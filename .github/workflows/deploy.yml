@@ -93,7 +93,7 @@ jobs:
 
     - name: whatif bicep template
       uses: azure/bicep-deploy@v2
-      if: ${{ inputs.runWhatIf == 'true' }}
+      if: ${{ inputs.runWhatIf }}
       with:
         type: deployment
         operation: whatIf
@@ -106,7 +106,7 @@ jobs:
 
     - name: deploy bicep template
       uses: azure/bicep-deploy@v2
-      if: ${{ inputs.runDeploy == 'true' }}
+      if: ${{ inputs.runDeploy  }}
       with:
         type: deployment
         operation: create
